@@ -1,0 +1,6 @@
+framework module RXTopOnSDK {
+  umbrella header "RXTopOnSDK.h"
+  export *
+
+  module * { export * }
+}
