@@ -140,19 +140,79 @@ networkFirmIDArray 平台id数组；数组中内容 e.g. @(ATNetworkFirmIDTypeFa
 - (void)setSystemPlatformType:(ATSystemPlatformType)type;
 
 /**
- 测试使用：设置测试的idfa，例如Meta广告测试设备等
+ 测试调试使用：设置测试的idfa，例如Meta广告测试设备等
  */
 + (void)setHeaderBiddingTestModeWithDeviceID:(NSString *)idfa;
 
 /**
- 测试使用：设置调试广告平台及相关广告类型、相关调试设备
+ 测试调试使用：设置调试广告平台及相关广告类型、相关调试设备
  */
 + (void)setDebuggerConfig:(void(^_Nullable)(ATDebuggerConfig * _Nullable debuggerConfig))debuggerConfigBlock;
 
 /**
- 测试使用：设置相关设备（一般不使用）
+ 设置相关设备的IDFA，将IDFA传入后台，可以基于设备信息调整广告投放策略。（此API 非必须使用）
  */
 + (void)setDeviceInfoConfig:(void(^_Nullable)(ATDeviceInfoConfig * _Nullable deviceInfoConfig))deviceInfoConfigBlock;
+
+/**
+ 获取用户当前位置是否在欧盟以内，如果在欧盟以内，需要在管理后台设置Google UMP流程设置欧盟的GDPR(《通用数据保护条例》)配置。
+ 按照文档配置完成后，再调用以下方法获取所在区域，并进行授权申请。
+ 使用了admob平台，调用‘showGDPRConsentDialogInViewController:dismissalCallback:’方法进行授权申请
+ 未使用admob平台，调用‘presentDataConsentDialogInViewController:loadingFailureCallback:dismissalCallback’方法进行授权申请
+ location：ATUserLocationUnknown 未知位置；ATUserLocationInEU 在欧盟；ATUserLocationOutOfEU 未在欧盟
+ */
+- (void)getUserLocationWithCallback:(void(^)(ATUserLocation location))callback;
+
+/**
+ 获取当前设置的GDPR级别
+ */
+@property (nonatomic,readonly) ATDataConsentSet dataConsentSet;
+
+/**
+ 用户在欧盟以内，且使用了admob广告平台，使用UMP流程授权，在管理平台按文档进行了相关设置后，调用以下方法
+ 展示UMP流程下GDPR授权：在'getUserLocationWithCallback:'后，如果处于欧盟，则调用此方法申请授权；不属于欧盟则正常调用初始化
+ viewController: 当前视图控制器
+ dismissCallback:授权弹框关闭后调用的block
+ */
+- (void)showGDPRConsentDialogInViewController:(UIViewController *)viewController
+                         dismissalCallback:(void(^)(void))dismissCallback;
+
+/**
+ 用户在欧盟以内，未使用了admob广告平台，调用以下方法进行申请授权，由用户设置GDPR等级
+ viewController: 当前视图控制器
+ loadingFailureCallback:授权展示失败的block
+ dismissCallback:授权弹框关闭后调用的block
+ */
+- (void)presentDataConsentDialogInViewController:(UIViewController *)viewController
+                          loadingFailureCallback:(void(^)(NSError *error))loadingFailureCallback
+                               dismissalCallback:(void(^)(void))dismissCallback;
+
+/**
+ 用户在欧盟以内，未使用了admob广告平台，调用以下方法进行申请授权，由用户设置GDPR等级
+ viewController: 当前视图控制器
+ dismissCallback:授权弹框关闭后调用的block
+ */
+- (void)presentDataConsentDialogInViewController:(UIViewController *)viewController
+                               dismissalCallback:(void(^)(void))dismissCallback;
+
+/**
+ TopOn设置GDPR级别(一般集成Ogury广告平台时使用此方法)
+ AnyThinkDataConsentSetUnknown(0)：
+ 这是默认值，当开发者未设置时采用此值；这种情况下，如果用户在GDPR区域内，SDK初始化将失败，
+ 后续广告请求也会因为失败。不能用setDataConsentSet方法设置该类型
+ 
+ AnyThinkDataConsentSetPersonalized(1)：
+ 这个级别代表用户同意SDK收集并使用他的个人数据来为他提供相关性更高、更适合他的广告。
+ 
+ AnyThinkDataConsentSetNonpersonalized(2)：
+ 如果数据保护级别设置为这个值，SDK不会收集用户个人数据，因为提供的广告可能不会符合用户的情况。
+ 另外，在这种情况下，某些不涉及用户隐私的数据可能仍会被收集。
+  
+ */
+- (void)setDataConsentSet:(ATDataConsentSet)dataConsentSet
+            consentString:(NSDictionary<NSString*, NSString*>*)consentString;
+
+
 
 @end
 

@@ -544,7 +544,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray<NSDictionary *> *)getInterstitialValidAdsForPlacementID:(NSString *)placementID;
 
 /**
- 展示Splash广告
+ 展示插屏广告
  placementId：TopOn的广告位id
  inViewController:展示广告的window
  */
@@ -552,7 +552,7 @@ NS_ASSUME_NONNULL_BEGIN
                        inViewController:(UIViewController *)viewController;
 
 /**
- 展示Splash广告
+ 展示插屏广告
  placementId：TopOn的广告位id
  scene:场景id
  inViewController:展示广告的window
